@@ -3,11 +3,10 @@ package com.iab.gdpr.consent.implementation.v1;
 import com.iab.gdpr.Bits;
 import com.iab.gdpr.GdprConstants;
 import com.iab.gdpr.Purpose;
-import com.iab.gdpr.consent.range.RangeEntry;
 import com.iab.gdpr.consent.VendorConsent;
+import com.iab.gdpr.consent.range.RangeEntry;
 import com.iab.gdpr.exception.VendorConsentCreateException;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,8 +19,8 @@ public class VendorConsentBuilder {
 
     private static final int VERSION = 1;
 
-    private Instant consentRecordCreated;
-    private Instant consentRecordLastUpdated;
+    private Date consentRecordCreated;
+    private Date consentRecordLastUpdated;
     private int cmpID;
     private int cmpVersion;
     private int consentScreenID;
@@ -36,26 +35,29 @@ public class VendorConsentBuilder {
 
     /**
      * With creation date
+     *
      * @param consentRecordCreated Epoch deciseconds when record was created
      * @return builder
      */
-    public VendorConsentBuilder withConsentRecordCreatedOn(Instant consentRecordCreated) {
+    public VendorConsentBuilder withConsentRecordCreatedOn(Date consentRecordCreated) {
         this.consentRecordCreated = consentRecordCreated;
         return this;
     }
 
     /**
      * With update date
+     *
      * @param consentRecordLastUpdated Epoch deciseconds when consent string was last updated
      * @return builder
      */
-    public VendorConsentBuilder withConsentRecordLastUpdatedOn(Instant consentRecordLastUpdated) {
+    public VendorConsentBuilder withConsentRecordLastUpdatedOn(Date consentRecordLastUpdated) {
         this.consentRecordLastUpdated = consentRecordLastUpdated;
         return this;
     }
 
     /**
      * With CMP id
+     *
      * @param cmpID Consent Manager Provider ID that last updated the consent string
      * @return builder
      */
@@ -66,6 +68,7 @@ public class VendorConsentBuilder {
 
     /**
      * With CMP version
+     *
      * @param cmpVersion Consent Manager Provider version
      * @return builder
      */
@@ -76,6 +79,7 @@ public class VendorConsentBuilder {
 
     /**
      * With consent screen ID
+     *
      * @param consentScreenID Screen number in the CMP where consent was given
      * @return builder
      */
@@ -86,6 +90,7 @@ public class VendorConsentBuilder {
 
     /**
      * With consent language
+     *
      * @param consentLanguage Two-letter ISO639-1 language code that CMP asked for consent in
      * @return builder
      */
@@ -96,6 +101,7 @@ public class VendorConsentBuilder {
 
     /**
      * With vendor list version
+     *
      * @param vendorListVersion Version of vendor list used in most recent consent string update
      * @return builder
      */
@@ -106,6 +112,7 @@ public class VendorConsentBuilder {
 
     /**
      * With allowed purpose IDs
+     *
      * @param allowedPurposeIds set of allowed purposes
      * @return builder
      */
@@ -121,6 +128,7 @@ public class VendorConsentBuilder {
 
     /**
      * With allowed purposes
+     *
      * @param allowedPurposes set of allowed purposes
      * @return builder
      */
@@ -134,6 +142,7 @@ public class VendorConsentBuilder {
 
     /**
      * With max vendor ID
+     *
      * @param maxVendorId The maximum VendorId for which consent values are given.
      * @return builder
      */
@@ -144,6 +153,7 @@ public class VendorConsentBuilder {
 
     /**
      * With vendor encoding type
+     *
      * @param vendorEncodingType 0=BitField 1=Range
      * @return builder
      */
@@ -157,6 +167,7 @@ public class VendorConsentBuilder {
 
     /**
      * With bit field entries
+     *
      * @param bitFieldEntries set of VendorIds for which the vendors have consent
      * @return builder
      */
@@ -167,6 +178,7 @@ public class VendorConsentBuilder {
 
     /**
      * With range entries
+     *
      * @param rangeEntries List of VendorIds or a range of VendorIds for which the vendors have consent
      * @return builder
      */
@@ -177,6 +189,7 @@ public class VendorConsentBuilder {
 
     /**
      * With default consent
+     *
      * @param defaultConsent Default consent for VendorIds not covered by a RangeEntry. 0=No Consent 1=Consent
      * @return builder
      */
@@ -187,6 +200,7 @@ public class VendorConsentBuilder {
 
     /**
      * Validate supplied values and build {@link VendorConsent} object
+     *
      * @return vendor consent object
      */
     public VendorConsent build() {
@@ -195,10 +209,10 @@ public class VendorConsentBuilder {
         Objects.requireNonNull(consentRecordLastUpdated, "consentRecordLastUpdated must be set");
         Objects.requireNonNull(consentLanguage, "consentLanguage must be set");
 
-        if (vendorListVersion <=0 )
+        if (vendorListVersion <= 0)
             throw new VendorConsentCreateException("Invalid value for vendorListVersion:" + vendorListVersion);
 
-        if (maxVendorId <=0 )
+        if (maxVendorId <= 0)
             throw new VendorConsentCreateException("Invalid value for maxVendorId:" + maxVendorId);
 
         // For range encoding, check if each range entry is valid
@@ -233,7 +247,7 @@ public class VendorConsentBuilder {
 
         // Set purposes bits
         for (int i = 0; i < PURPOSES_SIZE; i++) {
-            if (allowedPurposes.contains(i+1))
+            if (allowedPurposes.contains(i + 1))
                 bits.setBit(PURPOSES_OFFSET + i);
             else
                 bits.unsetBit(PURPOSES_OFFSET + i);
@@ -261,8 +275,8 @@ public class VendorConsentBuilder {
         } else {
             // Bit field encoding
             for (int i = 0; i < maxVendorId; i++) {
-                if (vendorsBitField.contains(i+1))
-                    bits.setBit(VENDOR_BITFIELD_OFFSET+i);
+                if (vendorsBitField.contains(i + 1))
+                    bits.setBit(VENDOR_BITFIELD_OFFSET + i);
                 else
                     bits.unsetBit(VENDOR_BITFIELD_OFFSET + i);
             }

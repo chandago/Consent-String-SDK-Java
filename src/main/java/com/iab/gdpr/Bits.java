@@ -1,10 +1,11 @@
 package com.iab.gdpr;
 
-import java.time.Instant;
-
 import com.iab.gdpr.exception.VendorConsentCreateException;
 import com.iab.gdpr.exception.VendorConsentException;
 import com.iab.gdpr.exception.VendorConsentParseException;
+
+import java.time.Instant;
+import java.util.Date;
 
 /*
  * since java.util.BitSet is inappropiate to use here--as it reversed the bit order of the consent string
@@ -12,7 +13,7 @@ import com.iab.gdpr.exception.VendorConsentParseException;
  */
 public class Bits {
     // big endian
-    private static final byte[] bytePows = { -128, 64, 32, 16, 8, 4, 2, 1 };
+    private static final byte[] bytePows = {-128, 64, 32, 16, 8, 4, 2, 1};
     private final byte[] bytes;
 
     public Bits(byte[] b) {
@@ -20,9 +21,7 @@ public class Bits {
     }
 
     /**
-     *
-     * @param index:
-     *            the nth number bit to get from the bit string
+     * @param index: the nth number bit to get from the bit string
      * @return boolean bit, true if the bit is switched to 1, false otherwise
      */
     public boolean getBit(int index) {
@@ -35,9 +34,7 @@ public class Bits {
     }
 
     /**
-     *
-     * @param index:
-     *            set the nth number bit from the bit string
+     * @param index: set the nth number bit from the bit string
      */
     public void setBit(int index) {
         int byteIndex = index / 8;
@@ -46,9 +43,7 @@ public class Bits {
     }
 
     /**
-     *
-     * @param index:
-     *            unset the nth number bit from the bit string
+     * @param index: unset the nth number bit from the bit string
      */
     public void unsetBit(int index) {
         int byteIndex = index / 8;
@@ -59,13 +54,10 @@ public class Bits {
     /**
      * interprets n number of bits as a big endiant int
      *
-     * @param startInclusive:
-     *            the nth to begin interpreting from
-     * @param size:
-     *            the number of bits to interpret
+     * @param startInclusive: the nth to begin interpreting from
+     * @param size:           the number of bits to interpret
      * @return integer value
-     * @throws VendorConsentException
-     *             when the bits cannot fit in an int sized field
+     * @throws VendorConsentException when the bits cannot fit in an int sized field
      */
     public int getInt(int startInclusive, int size) throws VendorConsentException {
         if (size > Integer.SIZE) {
@@ -87,14 +79,10 @@ public class Bits {
     /**
      * Writes an integer value into a bit array of given size
      *
-     * @param startInclusive:
-     *            the nth to begin writing to
-     * @param size:
-     *            the number of bits available to write
-     * @param to:
-     *            the integer to write out
-     * @throws VendorConsentException
-     *             when the bits cannot fit into the provided size
+     * @param startInclusive: the nth to begin writing to
+     * @param size:           the number of bits available to write
+     * @param to:             the integer to write out
+     * @throws VendorConsentException when the bits cannot fit into the provided size
      */
     public void setInt(int startInclusive, int size, int to) throws VendorConsentException {
         if (size > Integer.SIZE || to > maxOfSize(size) || to < 0) {
@@ -107,13 +95,10 @@ public class Bits {
     /**
      * interprets n bits as a big endian long
      *
-     * @param startInclusive:
-     *            the nth to begin interpreting from
-     * @param size:the
-     *            number of bits to interpret
+     * @param startInclusive: the nth to begin interpreting from
+     * @param size:the        number of bits to interpret
      * @return the long value create by interpretation of provided bits
-     * @throws VendorConsentException
-     *             when the bits cannot fit in an int sized field
+     * @throws VendorConsentException when the bits cannot fit in an int sized field
      */
     private long getLong(int startInclusive, int size) throws VendorConsentException {
         if (size > Long.SIZE) {
@@ -135,14 +120,10 @@ public class Bits {
     /**
      * Writes a long value into a bit array of given size
      *
-     * @param startInclusive:
-     *            the nth to begin writing to
-     * @param size:
-     *            the number of bits available to write
-     * @param to:
-     *            the long number to write out
-     * @throws VendorConsentException
-     *             when the bits cannot fit into the provided size
+     * @param startInclusive: the nth to begin writing to
+     * @param size:           the number of bits available to write
+     * @param to:             the long number to write out
+     * @throws VendorConsentException when the bits cannot fit into the provided size
      */
     private void setLong(int startInclusive, int size, long to) throws VendorConsentException {
         if (size > Long.SIZE || to > maxOfSize(size) || to < 0) {
@@ -156,34 +137,27 @@ public class Bits {
      * returns an {@link Instant} derived from interpreting the given interval on the bit string as long representing
      * the number of demiseconds from the unix epoch
      *
-     * @param startInclusive:
-     *            the bit from which to begin interpreting
-     * @param size:
-     *            the number of bits to interpret
+     * @param startInclusive: the bit from which to begin interpreting
+     * @param size:           the number of bits to interpret
      * @return instant value
-     * @throws VendorConsentException
-     *             when the number of bits requested cannot fit in a long
+     * @throws VendorConsentException when the number of bits requested cannot fit in a long
      */
-    public Instant getInstantFromEpochDeciseconds(int startInclusive, int size) throws VendorConsentException {
+    public Date getInstantFromEpochDeciseconds(int startInclusive, int size) throws VendorConsentException {
         long epochDemi = getLong(startInclusive, size);
-        return Instant.ofEpochMilli(epochDemi * 100);
+        return new Date(epochDemi * 100);
     }
 
-    public void setInstantToEpochDeciseconds(int startInclusive, int size, Instant instant)
-            throws VendorConsentException {
-        setLong(startInclusive, size, instant.toEpochMilli() / 100);
+    public void setInstantToEpochDeciseconds(int startInclusive, int size, Date date) throws VendorConsentException {
+        setLong(startInclusive, size, date.getTime() / 100);
     }
 
     /**
      * This method interprets the given interval in the bit string as a series of six bit characters, where 0=A and 26=Z
      *
-     * @param startInclusive:
-     *            the nth bit in the bitstring from which to start the interpretation
-     * @param size:
-     *            the number of bits to include in the string
+     * @param startInclusive: the nth bit in the bitstring from which to start the interpretation
+     * @param size:           the number of bits to include in the string
      * @return the string given by the above interpretation
-     * @throws VendorConsentException
-     *             when the requested interval is not a multiple of six
+     * @throws VendorConsentException when the requested interval is not a multiple of six
      */
     public String getSixBitString(int startInclusive, int size) throws VendorConsentException {
         if (size % 6 != 0) {
@@ -202,14 +176,10 @@ public class Bits {
      * This method interprets characters, as 0=A and 26=Z and writes to the given interval in the bit string as a series
      * of six bits
      *
-     * @param startInclusive:
-     *            the nth bit in the bitstring from which to start writing
-     * @param size:
-     *            the size of the bitstring
-     * @param to:
-     *            the string given by the above interpretation
-     * @throws VendorConsentException
-     *             when the requested interval is not a multiple of six
+     * @param startInclusive: the nth bit in the bitstring from which to start writing
+     * @param size:           the size of the bitstring
+     * @param to:             the string given by the above interpretation
+     * @throws VendorConsentException when the requested interval is not a multiple of six
      */
     public void setSixBitString(int startInclusive, int size, String to) throws VendorConsentException {
         if (size % 6 != 0 || size / 6 != to.length()) {

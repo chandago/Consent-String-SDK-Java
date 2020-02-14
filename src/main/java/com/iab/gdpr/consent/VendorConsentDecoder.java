@@ -29,12 +29,10 @@ public class VendorConsentDecoder {
 
         final Bits bits = new Bits(bytes);
         final int version = getVersion(bits);
-        switch (version) {
-            case 1:
-                return new ByteBufferBackedVendorConsent(bits);
-            default:
-                throw new IllegalStateException("Unsupported version: " + version);
+        if (version == 1) {
+            return new ByteBufferBackedVendorConsent(bits);
         }
+        throw new IllegalStateException("Unsupported version: " + version);
     }
 
     /**

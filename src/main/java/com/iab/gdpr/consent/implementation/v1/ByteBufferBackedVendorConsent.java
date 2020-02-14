@@ -6,8 +6,8 @@ import com.iab.gdpr.Purpose;
 import com.iab.gdpr.consent.VendorConsent;
 import com.iab.gdpr.exception.VendorConsentParseException;
 
-import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,13 +18,12 @@ import static com.iab.gdpr.GdprConstants.*;
 /**
  * Implementation of {@link VendorConsent}. This implementation uses byte buffer (wrapped with {@link Bits})
  * as a storage of consent string values and parses individual fields on demand.
- *
+ * <p>
  * This should work well in environment where vendor consent string is decoded, couple of isPurposeAllowed()/isVendorAllowed()
  * calls are made and then value of the consent is discarded.
- *
+ * <p>
  * In the environment where decoded consent string is kept for longer time with numerous isPurposeAllowed()/isVendorAllowed()
  * calls a different implementation may be needed that would cache results of those calls.
- *
  */
 public class ByteBufferBackedVendorConsent implements VendorConsent {
     private final Bits bits;
@@ -39,12 +38,12 @@ public class ByteBufferBackedVendorConsent implements VendorConsent {
     }
 
     @Override
-    public Instant getConsentRecordCreated() {
+    public Date getConsentRecordCreated() {
         return bits.getInstantFromEpochDeciseconds(CREATED_BIT_OFFSET, CREATED_BIT_SIZE);
     }
 
     @Override
-    public Instant getConsentRecordLastUpdated() {
+    public Date getConsentRecordLastUpdated() {
         return bits.getInstantFromEpochDeciseconds(UPDATED_BIT_OFFSET, UPDATED_BIT_SIZE);
     }
 
@@ -106,7 +105,7 @@ public class ByteBufferBackedVendorConsent implements VendorConsent {
             for (int i = 0; i < numEntries; i++) {
                 final boolean isRange = bits.getBit(currentOffset);
                 currentOffset++;
-                if(isRange) {
+                if (isRange) {
                     int startVendorId = bits.getInt(currentOffset, VENDOR_ID_SIZE);
                     currentOffset += VENDOR_ID_SIZE;
                     int endVendorId = bits.getInt(currentOffset, VENDOR_ID_SIZE);
@@ -122,14 +121,14 @@ public class ByteBufferBackedVendorConsent implements VendorConsent {
             }
             if (isDefaultConsent) {
                 IntStream.rangeClosed(1, getMaxVendorId())
-                    .filter(id -> !vendorIds.contains(id))
-                    .forEach(allowedVendorIds::add);
+                        .filter(id -> !vendorIds.contains(id))
+                        .forEach(allowedVendorIds::add);
             } else {
                 allowedVendorIds.addAll(vendorIds);
             }
         } else {
             for (int i = VENDOR_BITFIELD_OFFSET; i < VENDOR_BITFIELD_OFFSET + maxVendorId; i++) {
-                if(bits.getBit(i)) {
+                if (bits.getBit(i)) {
                     allowedVendorIds.add(i - VENDOR_BITFIELD_OFFSET + 1);
                 }
             }
@@ -173,7 +172,6 @@ public class ByteBufferBackedVendorConsent implements VendorConsent {
     }
 
     /**
-     *
      * @return the encoding type - 0=BitField 1=Range
      */
     private int encodingType() {
@@ -183,6 +181,7 @@ public class ByteBufferBackedVendorConsent implements VendorConsent {
     /**
      * Check whether specified vendor ID is present in the range section of the bits. This assumes that
      * encoding type was already checked and is VENDOR_ENCODING_RANGE
+     *
      * @param vendorId vendor ID to check
      * @return boolean value of vendor ID presence
      */
@@ -219,7 +218,7 @@ public class ByteBufferBackedVendorConsent implements VendorConsent {
         }
     }
 
-    private static void validate(int singleVendorId, int maxVendorId) throws VendorConsentParseException{
+    private static void validate(int singleVendorId, int maxVendorId) throws VendorConsentParseException {
         if (singleVendorId > maxVendorId) {
             throw new VendorConsentParseException(
                     "VendorId in the range entries must not be greater than Max VendorId");

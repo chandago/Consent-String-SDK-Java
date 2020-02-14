@@ -9,7 +9,7 @@ repositories {
     mavenLocal()
 }
 
-group = 'com.conversantmedia.gdpr'
+group = 'com.sfbx.gdpr'
 version = '3.0.3'
 
 description = 'A Java implementation of the IAB Consent String spec.'
@@ -51,11 +51,11 @@ publishing {
 
     repositories {
         maven {
-            name = 'OSS Nexus Staging'
-            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            name = ''
+            url = ""
             credentials  {
-                username = mavenUsername
-                password = mavenPassword
+//                username = mavenUsername
+//                password = mavenPassword
             }
         }
     }
@@ -70,7 +70,7 @@ publishing {
             pom {
                 name = 'Consent-String-SDK-Java'
                 description = 'A Java implementation of the IAB Consent String spec'
-                url = 'https://github.com/InteractiveAdvertisingBureau/Consent-String-SDK-Java'
+                url = 'https://github.com/chandago/Consent-String-SDK-Java'
                 licenses {
                     license {
                         name = 'MIT'
@@ -79,9 +79,9 @@ publishing {
                 }
                 developers {
                     developer {
-                        id = 'IAB'
-                        name = 'IAB'
-                        email = 'about@iab.com'
+                        id = 'SFBX'
+                        name = 'SFBX'
+                        email = 'kdarrimajou@chandago.com'
                     }
                 }
                 scm {

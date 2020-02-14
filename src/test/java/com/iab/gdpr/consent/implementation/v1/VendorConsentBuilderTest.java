@@ -1,35 +1,27 @@
 package com.iab.gdpr.consent.implementation.v1;
 
 import com.iab.gdpr.Purpose;
+import com.iab.gdpr.consent.VendorConsent;
 import com.iab.gdpr.consent.range.RangeEntry;
 import com.iab.gdpr.consent.range.SingleRangeEntry;
 import com.iab.gdpr.consent.range.StartEndRangeEntry;
-import com.iab.gdpr.consent.VendorConsent;
 import com.iab.gdpr.exception.VendorConsentCreateException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.iab.gdpr.Purpose.*;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class VendorConsentBuilderTest {
 
-    private Instant now;
+    private Date now;
 
     @Before
     public void setUp() {
-        now = LocalDateTime.now().withNano(0).toInstant(ZoneOffset.UTC);
+        now = Calendar.getInstance().getTime();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -95,7 +87,7 @@ public class VendorConsentBuilderTest {
         // And: list of range entries with values that are > max vendor ID
         final List<RangeEntry> rangeEntries = Arrays.asList(
                 new SingleRangeEntry(1),
-                new StartEndRangeEntry(100,400)
+                new StartEndRangeEntry(100, 400)
         );
 
         // When: trying to build using invalid value
@@ -142,15 +134,15 @@ public class VendorConsentBuilderTest {
 
 
         // Then: values in vendor consent match parameters
-        assertThat(vendorConsent.getVersion(),is(1));
-        assertThat(vendorConsent.getConsentRecordCreated(),is(now));
-        assertThat(vendorConsent.getConsentRecordLastUpdated(),is(now));
-        assertThat(vendorConsent.getCmpId(),is(cmpId));
-        assertThat(vendorConsent.getCmpVersion(),is(cmpVersion));
-        assertThat(vendorConsent.getConsentScreen(),is(consentScreenID));
-        assertThat(vendorConsent.getVendorListVersion(),is(vendorListVersion));
-        assertThat(vendorConsent.getAllowedPurposeIds(),is(allowedPurposes));
-        assertThat(vendorConsent.getMaxVendorId(),is(maxVendorId));
+        assertThat(vendorConsent.getVersion(), is(1));
+        assertThat(vendorConsent.getConsentRecordCreated().getTime() / 100, is(now.getTime() / 100));
+        assertThat(vendorConsent.getConsentRecordLastUpdated().getTime() / 100, is(now.getTime() / 100));
+        assertThat(vendorConsent.getCmpId(), is(cmpId));
+        assertThat(vendorConsent.getCmpVersion(), is(cmpVersion));
+        assertThat(vendorConsent.getConsentScreen(), is(consentScreenID));
+        assertThat(vendorConsent.getVendorListVersion(), is(vendorListVersion));
+        assertThat(vendorConsent.getAllowedPurposeIds(), is(allowedPurposes));
+        assertThat(vendorConsent.getMaxVendorId(), is(maxVendorId));
 
         assertTrue(vendorConsent.isPurposeAllowed(1));
         assertTrue(vendorConsent.isPurposeAllowed(2));
@@ -182,7 +174,7 @@ public class VendorConsentBuilderTest {
         final int vendorEncodingType = 1;
         final List<RangeEntry> rangeEntries = Arrays.asList(
                 new SingleRangeEntry(10),
-                new StartEndRangeEntry(100,200),
+                new StartEndRangeEntry(100, 200),
                 new SingleRangeEntry(350)
         );
 
@@ -204,15 +196,15 @@ public class VendorConsentBuilderTest {
 
 
         // Then: values in vendor consent match parameters
-        assertThat(vendorConsent.getVersion(),is(1));
-        assertThat(vendorConsent.getConsentRecordCreated(),is(now));
-        assertThat(vendorConsent.getConsentRecordLastUpdated(),is(now));
-        assertThat(vendorConsent.getCmpId(),is(cmpId));
-        assertThat(vendorConsent.getCmpVersion(),is(cmpVersion));
-        assertThat(vendorConsent.getConsentScreen(),is(consentScreenID));
-        assertThat(vendorConsent.getVendorListVersion(),is(vendorListVersion));
-        assertThat(vendorConsent.getAllowedPurposes(),is(allowedPurposes));
-        assertThat(vendorConsent.getMaxVendorId(),is(maxVendorId));
+        assertThat(vendorConsent.getVersion(), is(1));
+        assertThat(vendorConsent.getConsentRecordCreated().getTime() / 100, is(now.getTime() / 100));
+        assertThat(vendorConsent.getConsentRecordLastUpdated().getTime() / 100, is(now.getTime() / 100));
+        assertThat(vendorConsent.getCmpId(), is(cmpId));
+        assertThat(vendorConsent.getCmpVersion(), is(cmpVersion));
+        assertThat(vendorConsent.getConsentScreen(), is(consentScreenID));
+        assertThat(vendorConsent.getVendorListVersion(), is(vendorListVersion));
+        assertThat(vendorConsent.getAllowedPurposes(), is(allowedPurposes));
+        assertThat(vendorConsent.getMaxVendorId(), is(maxVendorId));
 
         assertTrue(vendorConsent.isPurposeAllowed(STORAGE_AND_ACCESS));
         assertTrue(vendorConsent.isPurposeAllowed(PERSONALIZATION));
